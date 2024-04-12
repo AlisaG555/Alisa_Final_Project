@@ -1,0 +1,97 @@
+import tkinter
+from tkinter import *
+from tkinter import ttk
+from tkinter import messagebox
+import tkinter.messagebox
+from tkinter import font as tkFont
+import matplotlib.image as img
+from PIL import Image, ImageTk
+from functools import partial
+import os
+
+def choose_letter(index):
+    #message = "You chose " + name
+    getchar = chr(65+index)
+    if getchar in secretword:
+        listbut[index].configure(bg = "lightgreen")
+        index_guessed_letter = secretword.index(getchar)
+        clist[index_guessed_letter].config(text = getchar)
+    
+    #tkinter.messagebox.showinfo(message = message)
+
+
+
+
+window = tkinter.Tk() #create a window
+window.title("Hangman")
+
+frame = tkinter.Frame(window)
+frame.pack()
+
+subframe0 = tkinter.LabelFrame(frame) #display letters in a word _ _ _ _
+subframe0.grid(row = 0, column = 0)
+fontchar = tkFont.Font(family="Comic Sans MS", weight="bold",size=36)
+secretword = "PYTHON"
+
+clist = [] # list of labels _ _ _
+for c in secretword:
+    clist.append(tkinter.Label(subframe0, text = "_", font = fontchar))
+    clist[-1].grid(row=0, column=secretword.index(c), padx=10, pady=10)
+
+subframe1 = tkinter.LabelFrame(frame) # frame where picture, list of write and wrong guesses are located
+subframe1.grid(row = 1, column = 0)
+
+
+image = ImageTk.PhotoImage(Image.open('hangman.png'))
+image1 = Image.open('hangman.png')
+img = ImageTk.PhotoImage(image1.resize((400,300)))
+framepicture = tkinter.LabelFrame(subframe1,text="Hangman")   #frame where picture of a hangman is located
+framepicture.grid(row = 0, column = 0, padx=5, pady=5)
+labelpicture = Label(framepicture, image = img)
+labelpicture.grid()
+
+
+
+frameguess = tkinter.LabelFrame(subframe1,text = "Process") # frame where _ _ _ _, list of write and wrong guesses are located
+frameguess.grid(row = 0, column = 1,padx=5, pady=5)
+guessedlabel = tkinter.Label(frameguess,text = "Correctly guessed letters\n",width = 43)
+guessedlabel.grid(row = 0,column=0)
+wrongguessedlabel = tkinter.Label(frameguess,text = "Incorrectly guessed letters")
+wrongguessedlabel.grid(row=1,column=0)
+
+frameletters = tkinter.LabelFrame(frame,borderwidth=0) # frame where _ _ _ _, list of write and wrong guesses are located
+frameletters.grid(row = 2, column = 0)
+
+
+def make_letter_button(namebutton, name,index,frame,row, column):
+    fontbutton = tkFont.Font(family="Comic Sans MS", weight="bold",size=16)
+    namebutton = tkinter.Button(frame,text=name, command = partial(choose_letter, index), height = 1, width = 3, font = fontbutton, borderwidth=0) #command = lambda: choose_letter(name)
+    namebutton.grid(row=row,column=column, padx=5, pady=5)
+
+
+'''for index,letter in enumerate(range(65,91)):     # chr(number), where number - integer - symbol. 65-91 are uppercase letters enumerare will print inxex 0A 1B 2C etc.
+    letter = chr(letter)
+    namebutton = "button" + letter
+    make_letter_button(namebutton, letter, frameletters, 0, index)
+    print(index, letter, "namebutton = ", namebutton)
+'''
+listbut = []
+'''for index,letter in enumerate(range(65,78)):     # chr(number), where number - integer - symbol. 65-91 are uppercase letters enumerare will print inxex 0A 1B 2C etc.
+    letter = chr(letter)
+    namebutton = "button" + letter
+    #make_letter_button(namebutton, letter, index, frameletters, 0, index)
+    listbut.append(make_letter_button(namebutton, letter, index, frameletters, 0, index))
+    print(index, letter, "namebutton = ", namebutton)
+'''
+for index,letter in enumerate(range(65,91)):     # chr(number), where number - integer - symbol. 65-91 are uppercase letters enumerare will print inxex 0A 1B 2C etc.
+
+    letter = chr(letter)
+    namebutton = "button" + letter
+    #make_letter_button(namebutton, letter, index, frameletters, 1, index)
+    fontbutton = tkFont.Font(family="Comic Sans MS", weight="bold",size=16)
+    listbut.append(tkinter.Button(frameletters, text = letter, height = 1, width = 3, font = fontbutton, borderwidth=0, command = partial(choose_letter, index))) #command = lambda: choose_letter(name)
+    listbut[-1].grid(row=index//13,column=index%13, padx=5, pady=5)
+
+print(len(listbut))
+
+window.mainloop() #"close" a window
