@@ -1,22 +1,22 @@
 from tkinter import *
 from tkinter import ttk
 import tkinter.messagebox
-from tkinter import font as tkFont
-from PIL import Image, ImageTk
-from functools import partial
-import random
+from tkinter import font as tkFont # to use fifferent fonts
+from PIL import Image, ImageTk # to display a picture as a lable 
+from functools import partial # to let call the same function for all the letters depending on the index
+import random # to choose secret randomly
 
 string_right_guesses = ""
 string_wrong_guesses = ""
 wrong_attempt = 0
 guessed_count=0
 
-def showpicture(picturename):
+def showpicture(picturename): # display picture of a hangman
     pict = ImageTk.PhotoImage(Image.open(picturename))
     labelpicture.config(image=pict)
     labelpicture.image = pict
 
-def get_rand_word(filename):
+def get_rand_word(filename): # get a word randomly from words stored in file
     
     with open(filename,"r") as file:
         words = file.readlines()
@@ -25,62 +25,58 @@ def get_rand_word(filename):
     
     return secretword
 
-def display_word():
+def display_word(): # display secretword in a format _ _ _
     global clist
     clist = [] # list of labels _ _ _
     for i in range(0,len(secretword)):
         clist.append(tkinter.Label(frameletters, text = "_", font = fontchar,bg="white"))
         clist[i].grid(row=0, column=i, padx=10, pady=10)
 
-def choose_letter(index):
-    global guessed_count
-    global string_right_guesses
-    global string_wrong_guesses
-    global wrong_attempt
+def choose_letter(index): # what happened if the player presses any letter button index - index of a letter  
+    global guessed_count            # a number of letter guessed (e.g. T O_ _ T O guessed count = 4)
+    global string_right_guesses     # string variable that stores letter guessed correctly to display them as a lable
+    global string_wrong_guesses     # string variable that stores letter guessed incorrectly to display them as a lable
+    global wrong_attempt            # stores a number of lost tries to find out when game is over and to hange pictures
 
     picturename = "hangman"
 
-    getchar = chr(65+index)
+    getchar = chr(65+index) # get character from a number : 65 - letter 'A'
     message = "You have already tried letter " + getchar
-    if getchar in string_right_guesses + string_wrong_guesses: 
+    if getchar in string_right_guesses + string_wrong_guesses: # if a letter was chosen already
         tkinter.messagebox.showinfo(message = message)
     else:
-        if getchar in secretword:
-                listbut[index].configure(bg = "lightgreen")
-                string_right_guesses = string_right_guesses + getchar + " "
-                for i in range(0,len(secretword)):
+        if getchar in secretword: # if letter is in the secret word
+                listbut[index].configure(bg = "lightgreen")                   # letter gets green
+                string_right_guesses = string_right_guesses + getchar + " "   # letter is stored in a string of guessed letters
+                for i in range(0,len(secretword)):                             
                     if secretword[i] == getchar:
                         index_guessed_letter = i
-                        clist[index_guessed_letter].config(text = getchar)
+                        clist[index_guessed_letter].config(text = getchar) # replace undescore with guessed letters
                         guessed_count+=1
-                correctletterslabel.config(text = string_right_guesses)
-        else:
-            listbut[index].configure(bg = "tomato")
+                correctletterslabel.config(text = string_right_guesses) # change string of correctly guessed letters
+        else:   #if letter is not in the secret word
+            listbut[index].configure(bg = "tomato")  # letter gets red
             string_wrong_guesses = string_wrong_guesses + getchar + " "
-            incorrectletterslabel.config(text = string_wrong_guesses) 
+            incorrectletterslabel.config(text = string_wrong_guesses) #string of letters guessed incorrectly is updated
             wrong_attempt += 1
-            picturename += str(wrong_attempt)+".png"
-            pict = ImageTk.PhotoImage(Image.open(picturename))
-            labelpicture.config(image=pict)
-            labelpicture.image = pict
+            picturename += str(wrong_attempt)+".png" # picture depending on a number of wrong tries is shown
+            showpicture(picturename)
 
-    if wrong_attempt == 11:
+    if wrong_attempt == 11:        # if the game was lost
         for button in listbut:
-            button.configure(state  = DISABLED)
-        msg = "Your secret word was " + secretword
-        tkinter.messagebox.showinfo(message = msg)
-        restartbutton.config(state = NORMAL, image = imagerestartvis)
-    if guessed_count == len(secretword):
-        pict = ImageTk.PhotoImage(Image.open("Winner.png"))
-        labelpicture.config(image=pict) 
-        labelpicture.image = pict
+            button.configure(state  = DISABLED) # block all buttons
+        msg = "Your secret word was " + secretword 
+        tkinter.messagebox.showinfo(message = msg)    # displays secret word
+        restartbutton.config(state = NORMAL, image = imagerestartvis)   # restart button is available
+    if guessed_count == len(secretword): # if the game was won
+        showpicture("Winner.png")
         for button in listbut:
-            button.configure(state  = DISABLED)
-        restartbutton.config(state = NORMAL, image = imagerestartvis)#, image=image)
-    if guessed_count > 0:
-        guessedlabeltitle.config(fg="Black")
-    if wrong_attempt > 0:
-        wrongguessedlabel.config(fg="Black")
+            button.configure(state  = DISABLED)  # block all buttons
+        restartbutton.config(state = NORMAL, image = imagerestartvis) # restart button is available
+    if guessed_count > 0: # if there is at list one letter
+        guessedlabeltitle.config(fg="Black") #change font color to make it visible
+    if wrong_attempt > 0: # if there is at list one letter
+        wrongguessedlabel.config(fg="Black") #change font color to make it visible
 
 def restart():
 
@@ -89,15 +85,15 @@ def restart():
     global string_wrong_guesses
     global wrong_attempt
 
-    string_right_guesses = ""
+    string_right_guesses = "" # get back to start values
     string_wrong_guesses = ""
     wrong_attempt = 0
     guessed_count=0
     for character in clist:
-        character.destroy()
+        character.destroy() # delete all buttons
     global secretword
-    secretword = get_rand_word("Hangmanwords1.txt")
-    display_word()
+    secretword = get_rand_word("Hangmanwords1.txt") # get secret word randomly 
+    display_word() # display a secret word
     showpicture("hangman0.png")
     guessedlabeltitle.config(fg="White")
     wrongguessedlabel.config(fg="White")
@@ -172,7 +168,7 @@ listbut = []
 
 for index,letter in enumerate(range(65,91)):     # chr(number), where number - integer - symbol. 65-91 are uppercase letters enumerare will print inxex 0A 1B 2C etc.
     letter = chr(letter)
-    listbut.append(tkinter.Button(framebuttons, bg="white", text = letter, height = 1, width = 3, font = fontbutton, borderwidth=0, command = partial(choose_letter, index))) #command = lambda: choose_letter(name)
+    listbut.append(tkinter.Button(framebuttons, bg="white", text = letter, height = 1, width = 3, font = fontbutton, borderwidth=0, command = partial(choose_letter, index))) #all the buttons will evoke the same function depending on index
     listbut[-1].grid(row=index//13,column=index%13, padx=5, pady=5)
 
 window.mainloop() #"close" a window
